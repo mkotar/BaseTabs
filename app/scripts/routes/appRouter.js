@@ -13,15 +13,24 @@ define([
             '': 'help'
         },
         help: function () {
-                console.log('router "/"');
+            console.log('router "/"');
             var tabs = new TabsController({el: 'my-tabstrip', tabstripId: 'myTabs'});
-            var x = tabs.addTab('Start');
-            $('#'+x).html('<p>Hello Bob</p>');
-            var tabId = tabs.addTab('Vendor');
 
-            var y =tabs.addTab('Seed');
-            $('#'+y).html('<p>Hello Damo</p>');
-            new AppView({el: $('#'+tabId)}).render();
+            // first tab
+            var firstTab = tabs.addTab('firstTab');
+            $('#' + firstTab.getGuid()).html('<p>Hello Bob</p>');
+
+
+            // no-name tab
+            var noName = tabs.addTab();
+            noName.setName('new Name');
+            new AppView({el: $('#' + noName.getGuid())}).render();
+
+            // last tab
+            var lastTab = tabs.addTab('lastTab');
+            $('#' + lastTab.getGuid()).html('<p>Hello Bob</p>');
+
+
 
 //            setTimeout(function(){
 //                tabs.removeTab(tabId)
