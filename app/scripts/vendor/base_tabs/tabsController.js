@@ -7,9 +7,12 @@ define([
     'use strict';
 
     var TabsController = function (opts) {
-        var tabGuids = [],
+        var tabList = [],
             templates,
-            data = {};
+            data = {
+                sorting: false,
+                sortBy: false
+            };
 
         data = $.extend({}, data, opts);
 
@@ -35,21 +38,51 @@ define([
             return data.el + (t + r);
         };
 
+        var defaultSort = function (a, b) {
+            if (data.sortBy.indexOf(a.getType()) > data.sortBy.indexOf(b.getType())) {
+                return 1;
+            }
+            if (data.sortBy.indexOf(b.getType()) < data.sortBy.indexOf(b.getType())) {
+                return -1;
+            }
+            return 0;
+        };
+
+        var isFunction = function (possibleFunction) {
+            return (typeof(possibleFunction) == typeof(Function));
+        };
+
+        var applySorting = function () {
+            if (!data.sortBy) {
+                return;
+            }
+
+            if (isFunction(data.sorting)) {
+                tabList.sort(function (a, b) {
+                    return data.sorting(a, b, data.sortBy);
+                });
+                return;
+            }
+
+            tabList.sort(function (a, b) {
+                return defaultSort(a, b);
+            });
+        };
+
         var renderNewTabName = function (guid, newNav) {
-            var org = $("a[href='#"+guid+"']").parent();
-            console.log(org.hasClass('active'));
+            var org = $("a[href='#" + guid + "']").parent();
             var active = org.hasClass('active') ? 'active' : '';
 
             org.replaceWith(newNav);
-            $("a[href='#"+guid+"']").parent().addClass('active');
+            $("a[href='#" + guid + "']").parent().addClass('active');
             return newNav;
         };
 
         var tab = function (params) {
-            console.log('params', params);
             var nav = templates.tabNav(params.guid, params.tabName);
             var pane = templates.tabPane(params.guid);
             var guid = params.guid;
+            var type = params.type;
 
             return {
                 setName: function (newName) {
@@ -63,30 +96,51 @@ define([
                 },
                 getPane: function () {
                     return pane;
+                },
+                getType: function () {
+                    return type;
                 }
             }
         };
 
+
+        var renderNav = function() {
+            var container = $('#' + data.tabstripId);
+            container.empty();
+                console.log('renderNav')
+            $.each(tabList, function(index, item){
+                container.append(item.getNav());
+            });
+        };
+
         var createNewTab = function (tab) {
             var container = $('#' + data.tabstripId);
+
+            tabList.push(tab);
+            if (data.sorting || data.sortBy) {
+                applySorting();
+                renderNav();
+                $('#' + data.el).find('div.tab-content').append(tab.getPane());
+                container.find('a[href="#' + tab.getGuid() + '"]').tab('show');
+                return;
+            }
+
             $('#' + data.el).find('div.tab-content').append(tab.getPane());
             container.append(tab.getNav());
             container.find('a[href="#' + tab.getGuid() + '"]').tab('show');
-            tabGuids.push(tab.getGuid());
         };
 
-        var addTab = function (tabName) {
+        var addTab = function (tabName, tabType) {
             tabName = tabName || '';
             var guid = generateTabGuid();
-//                container = $('#' + data.tabstripId);
 
             var tempTab = new tab({
                 guid: guid,
-                tabName: tabName
+                tabName: tabName,
+                type: tabType
             });
 
             createNewTab(tempTab);
-
 
             return tempTab;
         };
