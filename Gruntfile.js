@@ -129,7 +129,9 @@ module.exports = function (grunt) {
             all: {
                 options: {
                     run: true,
-                    urls: ['http://localhost:<%= connect.test.options.port %>/index.html']
+                    urls: ['http://localhost:<%= connect.test.options.port %>/index.html'],
+                    reporter: 'Nyan'
+
                 }
             }
         },
@@ -154,6 +156,7 @@ module.exports = function (grunt) {
                     ext: '.js'
                 }]
             }
+
         },
         requirejs: {
             dist: {
@@ -309,12 +312,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', [
         'clean:server',
-        'coffee',
+//        'coffee',
         'createDefaultTemplate',
         'jst',
         'connect:test',
-        'mocha',
-        'watch:test'
+        'mocha'
+//        'watch:test'
     ]);
 
     grunt.registerTask('build', [

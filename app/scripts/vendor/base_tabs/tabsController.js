@@ -7,42 +7,57 @@ define([
     'use strict';
 
     var TabsController = function (opts) {
+
         var tabList = [],
             templates,
+            mainElement = null,
+            container = null,
             data = {
                 sorting: false,
                 sortBy: false
             };
 
         data = $.extend({}, data, opts);
+        mainElement = $('#' + data.el);
 
         templates = {
             tabstrip: function (htmlId) {
                 return '<ul class="nav nav-tabs" id="' + htmlId + '" /><div class="tab-content" />';
             },
-            tabNav: function (guid, name) {
-                return '<li><a href="#' + guid + '" data-toggle="tab">' + name + '</a></li>';
+            tabNav: function (guid, name, isClosable) {
+                var noClose = '<li><a href="#' + guid + '" data-toggle="tab">' + name + '</a></li>',
+                    hasClose = '<li><a href="#' + guid + '" data-toggle="tab">' + name + '<span class="tab-closer" data-guid="' + guid + '">&nbsp;&nbsp;&times;</span></a></li>';
+                return  isClosable ? hasClose : noClose;
             },
             tabPane: function (guid) {
-                return '<div class="tab-pane" id="' + guid + '"></div>';
+                return '<div class="tab-pane fade" id="' + guid + '"></div>';
             }
         };
 
         var initTabstripDOM = function () {
-            $('#' + data.el).append(templates.tabstrip(data.tabstripId));
+            mainElement.append(templates.tabstrip(data.tabstripId));
+            container = $('#' + data.tabstripId);
+            addListeners();
         };
+
+        var addListeners = function addListeners() {
+            //close btn click
+            container.on('click', 'span.tab-closer', function (el) {
+                removeTab(this.getAttribute("data-guid"));
+            });
+        }
 
         var generateTabGuid = function () {
             var r = Math.floor((Math.random() * 1000) + 1);
             var t = (new Date().getTime());
-            return data.el + (t + r);
+            return data.el + t + r;
         };
 
         var defaultSort = function (a, b) {
-            if (data.sortBy.indexOf(a.getType()) > data.sortBy.indexOf(b.getType())) {
+            if (data.sortBy.indexOf(a.getTabType()) > data.sortBy.indexOf(b.getTabType())) {
                 return 1;
             }
-            if (data.sortBy.indexOf(b.getType()) < data.sortBy.indexOf(b.getType())) {
+            if (data.sortBy.indexOf(b.getTabType()) < data.sortBy.indexOf(b.getTabType())) {
                 return -1;
             }
             return 0;
@@ -59,7 +74,9 @@ define([
 
             if (isFunction(data.sorting)) {
                 tabList.sort(function (a, b) {
-                    return data.sorting(a, b, data.sortBy);
+                    var i = data.sorting(a, b, data.sortBy);
+                    console.log(i);
+                    return i;
                 });
                 return;
             }
@@ -78,15 +95,20 @@ define([
             return newNav;
         };
 
-        var tab = function (params) {
-            var nav = templates.tabNav(params.guid, params.tabName);
-            var pane = templates.tabPane(params.guid);
-            var guid = params.guid;
-            var type = params.type;
+        var Tab = function (params) {
+            var pane = templates.tabPane(params.guid),
+                guid = params.guid,
+                tabType = params.tabType,
+                tabClose = params.tabClose !== undefined ? params.tabClose : true,
+                tabName = params.tabName || '',
+                nav = templates.tabNav(guid, tabName, tabClose);
 
             return {
                 setName: function (newName) {
-                    nav = renderNewTabName(guid, templates.tabNav(guid, newName));
+                    nav = renderNewTabName(guid, templates.tabNav(guid, newName, tabClose));
+                },
+                getTabName: function () {
+                    return tabName;
                 },
                 getNav: function () {
                     return nav;
@@ -94,50 +116,66 @@ define([
                 getGuid: function () {
                     return guid;
                 },
-                getPane: function () {
+                getPaneInnerHTML: function () {
                     return pane;
                 },
-                getType: function () {
-                    return type;
+                getTabType: function () {
+                    return tabType;
+                },
+                getTabClose: function () {
+                    return tabClose;
+                },
+                getTabEl: function () {
+                    return $('#' + this.getGuid());
                 }
             }
         };
 
-
-        var renderNav = function() {
-            var container = $('#' + data.tabstripId);
+        var renderNav = function () {
+            container.detach();
             container.empty();
-                console.log('renderNav')
-            $.each(tabList, function(index, item){
+            $.each(tabList, function (index, item) {
                 container.append(item.getNav());
             });
+            mainElement.prepend(container);
         };
 
-        var createNewTab = function (tab) {
-            var container = $('#' + data.tabstripId);
+        function addTabContent(tab) {
+            mainElement.find('div.tab-content').append(tab.getPaneInnerHTML());
+        }
 
+        function activateTab(tab) {
+            var anchor = container.find('a[href="#' + tab.getGuid() + '"]');
+            anchor.tab('show');
+        }
+
+        var createNewTab = function (tab) {
             tabList.push(tab);
             if (data.sorting || data.sortBy) {
                 applySorting();
                 renderNav();
-                $('#' + data.el).find('div.tab-content').append(tab.getPane());
-                container.find('a[href="#' + tab.getGuid() + '"]').tab('show');
-                return;
+                addTabContent(tab);
+                activateTab(tab);
+                return false;
             }
 
-            $('#' + data.el).find('div.tab-content').append(tab.getPane());
+            mainElement.find('div.tab-content').append(tab.getPaneInnerHTML());
             container.append(tab.getNav());
             container.find('a[href="#' + tab.getGuid() + '"]').tab('show');
         };
 
-        var addTab = function (tabName, tabType) {
-            tabName = tabName || '';
-            var guid = generateTabGuid();
+        var addTab = function (opts) {
 
-            var tempTab = new tab({
+            var tabName = opts.tabName || '',
+                tabType = opts.tabType || '',
+                tabClose = opts.tabClose,
+                guid = generateTabGuid();
+
+            var tempTab = new Tab({
                 guid: guid,
                 tabName: tabName,
-                type: tabType
+                tabType: tabType,
+                tabClose: tabClose
             });
 
             createNewTab(tempTab);
@@ -146,30 +184,22 @@ define([
         };
 
         var removeTab = function (guid) {
+            if (!guid) {
+                return false;
+            }
             $('#' + guid).remove();
-            $('#' + data.tabstripId).find('a[href="#' + guid + '"]').parent().remove();
-            $('#' + data.tabstripId).find('a:last').tab('show');
+            container.find('a[href="#' + guid + '"]').parent().remove();
+            container.find('a:last').tab('show');
         };
-
-        var order = function order(opts) {
-            //no default implementation - provide your own
-        }
-
-        //do i even need this?
-        var render = function render(opts) {
-//            order();
-        }
 
         initTabstripDOM();
 
         return {
             'addTab': addTab,
-            'removeTab': removeTab,
-            'order': order
+            'removeTab': removeTab
         }
 
     };
-
 
     return TabsController;
 });
