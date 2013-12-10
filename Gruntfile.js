@@ -1,9 +1,6 @@
 'use strict';
 
 module.exports = function (grunt) {
-    // show elapsed time at the end
-    require('time-grunt')(grunt);
-    // load all grunt tasks
     require('load-grunt-tasks')(grunt);
 
     grunt.initConfig({
@@ -15,7 +12,6 @@ module.exports = function (grunt) {
                 reporter: 'Nyan'
             }
         },
-
         jst: {
             options: {
                 amd: true
@@ -66,12 +62,7 @@ module.exports = function (grunt) {
         }
     });
 
-//    grunt.registerTask('createDefaultTemplate', function () {
-//        grunt.file.write('app/dist/scripts/templates.js', 'this.JST = this.JST || {};');
-//    });
-
     grunt.registerTask('test', [
-//        'createDefaultTemplate',
         'jst',
         'mocha'
     ]);
