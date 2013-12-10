@@ -34,7 +34,7 @@ define([
             new AppView({el: noName.getTabEl()}).render();
 
             // last tab
-            var lastTab = tabs.addTab({tabName: 'lastTab - start', tabType: 'start', tabClose: false});
+            var lastTab = tabs.addTab({tabName: 'lastTab - start ME UP', tabType: 'start', tabClose: false});
             $('#' + lastTab.getGuid()).html('<p>Tab start</p>');
 
             var dirTab = tabs.addTab({tabName: 'dirTab - directory', tabType: 'directory'});

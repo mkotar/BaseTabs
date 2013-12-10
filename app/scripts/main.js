@@ -25,7 +25,8 @@ require.config({
         backbone: '../bower_components/backbone/backbone',
         underscore: '../bower_components/underscore/underscore',
         bootstrap: 'vendor/bootstrap_tabs/js/bootstrap',
-        tabsController: 'vendor/base_tabs/tabsController'
+        tabsController: 'vendor/base_tabs/tabsController',
+        templates: '../dist/scripts/templates'
     }
 });
 
