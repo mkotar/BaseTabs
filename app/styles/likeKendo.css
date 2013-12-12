@@ -1,0 +1,67 @@
+.nav-tabs {
+	margin-bottom: 0px;
+	font-size: 13px;
+	line-height: 15px;
+	font-family: 'acxiom-Helvetica', Helvetica, Arial;
+	text-transform: capitalize;
+	height: 38px;
+	padding-top: 3px;
+	border-bottom: 0px;
+	margin-bottom: -1px;
+}
+
+.tab-content {
+	border: 1px solid #ccc;
+	top: 0px;
+	padding-top: 10px;
+}
+
+
+.nav-tabs li {
+	border: 1px solid #ccc;
+	-moz-border-radius: 6px 6px 0 0;
+	-webkit-border-radius: 6px 6px 0 0;
+	border-radius: 6px 6px 0 0;
+	background-image: none,linear-gradient(to bottom,#fefefe 0,#e7e7e7 100%);
+	background-position: 50% 50%;	
+}
+
+.nav-tabs li.active {
+	background: #fff;
+	color: #454545;
+	border: 0px;
+	margin-left:-1px;
+	margin-right: -1px;
+	margin-bottom: -1px;
+}
+
+.nav-tabs li a { 
+	color: #676767;
+}
+
+.nav-tabs li:hover {
+	background: #fefefe;
+	box-shadow: 0px -2px 4px rgba(0,0,0,0.3);
+	z-index:1000;
+	/*-webkit-box-shadow: inset 0 0 1px 1px rgba(255,255,255,0.6),0 0 2px rgba(0,0,0,0.3);
+	box-shadow: inset 0 0 1px 1px rgba(255,255,255,0.6), 0 0 2px rgba(0,0,0,0.3);*/
+
+}
+
+.nav-tabs li.active a {
+	color: #454545;
+	padding: 7.5px 14px;
+}
+
+.nav-tabs > li > a {
+	margin-right: 0px;
+	padding: 6.5px 12px;
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+	height: 35px !important;
+}
+
+.nav-tabs span.tab-closer {
+	cursor: pointer;
+}
